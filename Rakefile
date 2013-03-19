@@ -20,5 +20,5 @@ task :default => [:all]
 
 desc 'Test the engine under all supported Rails versions'
 task :all => ['appraisal:install'] do |t|
-  exec 'rake appraisal spec cucumber'
+  exec 'rake appraisal spec cucumber --trace'
 end

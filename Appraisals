@@ -5,6 +5,7 @@ else
 end
 
 appraise name do
-  gem 'jquery-rails'
   gem 'rails', version
+  gem 'jquery-rails'
+  gem 'sass-rails'
 end
