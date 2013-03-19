@@ -3,10 +3,12 @@ module ModelBuilder
     example_group.class_eval do
       before do
         @created_tables ||= []
+        @defined_models ||= []
       end
 
       after do
         drop_created_tables
+        remove_models
       end
     end
   end
@@ -26,6 +28,7 @@ module ModelBuilder
   end
 
   def define_model_class(class_name, &block)
+    @defined_models << class_name
     define_class(class_name, ActiveRecord::Base, &block)
   end
 
@@ -67,6 +70,14 @@ module ModelBuilder
 
     @created_tables.each do |table_name|
       connection.execute("DROP TABLE IF EXISTS #{table_name}")
+    end
+  end
+
+  def remove_models
+    @defined_models.each do |model_name|
+      if Object.const_defined?(model_name.to_sym)
+        Object.send(:remove_const, model_name.to_sym)
+      end
     end
   end
 end
