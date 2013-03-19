@@ -124,7 +124,9 @@ describe Shoulda::Matchers::ActiveRecord::AssociationMatcher do
 
   context 'have_many' do
     it 'accepts a valid association without any options' do
-      having_many_children.should have_many(:children)
+      define_parent_who_has_many_children
+
+      Parent.new.should have_many(:children)
     end
 
     it 'accepts a valid association with a :through option' do
@@ -170,8 +172,9 @@ describe Shoulda::Matchers::ActiveRecord::AssociationMatcher do
 
     it 'rejects an association that has a bad :through option' do
       matcher = have_many(:children).through(:conceptions)
+      define_parent_who_has_many_children
 
-      matcher.matches?(having_many_children).should be_false
+      matcher.matches?(Parent.new).should be_false
 
       matcher.failure_message_for_should.should =~ /does not have any relationship to conceptions/
     end
@@ -194,21 +197,27 @@ describe Shoulda::Matchers::ActiveRecord::AssociationMatcher do
     end
 
     it 'accepts an association with a valid :dependent option' do
-      having_many_children(:dependent => :destroy).
-        should have_many(:children).dependent(:destroy)
+      define_parent_who_has_many_children(:dependent => :destroy)
+
+      Parent.new.should have_many(:children).dependent(:destroy)
     end
 
     it 'rejects an association with a bad :dependent option' do
-      having_many_children.should_not have_many(:children).dependent(:destroy)
+      define_parent_who_has_many_children
+
+      Parent.new.should_not have_many(:children).dependent(:destroy)
     end
 
     it 'accepts an association with a valid :order option' do
-      having_many_children(:order => :id).
-        should have_many(:children).order(:id)
+      define_parent_who_has_many_children(:order => :id)
+
+      Parent.new.should have_many(:children).order(:id)
     end
 
     it 'rejects an association with a bad :order option' do
-      having_many_children.should_not have_many(:children).order(:id)
+      define_parent_who_has_many_children
+
+      Parent.new.should_not have_many(:children).order(:id)
     end
 
     it 'accepts an association with a valid :conditions option' do
@@ -239,24 +248,34 @@ describe Shoulda::Matchers::ActiveRecord::AssociationMatcher do
     end
 
     it 'rejects an association with a bad :class_name option' do
-      having_many_children.should_not have_many(:children).class_name('Node')
+      define_parent_who_has_many_children
+
+      Parent.new.should_not have_many(:children).class_name('Node')
     end
 
     context 'validate' do
       it 'accepts when the :validate option matches' do
-        having_many_children(:validate => false).should have_many(:children).validate(false)
+        define_parent_who_has_many_children(:validate => false)
+
+        Parent.new.should have_many(:children).validate(false)
       end
 
       it 'rejects when the :validate option does not match' do
-        having_many_children(:validate => true).should_not have_many(:children).validate(false)
+        define_parent_who_has_many_children(:validate => true)
+
+        Parent.new.should_not have_many(:children).validate(false)
       end
 
       it 'assumes validate() means validate(true)' do
-        having_many_children(:validate => false).should_not have_many(:children).validate
+        define_parent_who_has_many_children(:validate => false)
+
+        Parent.new.should_not have_many(:children).validate
       end
 
       it 'matches validate(false) to having no validate option specified' do
-        having_many_children.should have_many(:children).validate(false)
+        define_parent_who_has_many_children
+
+        Parent.new.should have_many(:children).validate(false)
       end
     end
 
@@ -283,11 +302,12 @@ describe Shoulda::Matchers::ActiveRecord::AssociationMatcher do
       Parent.new.should_not have_many(:children)
     end
 
-    def having_many_children(options = {})
+    def define_parent_who_has_many_children(options = {})
       define_model :child, :parent_id => :integer
+
       define_model :parent do
         has_many :children, options
-      end.new
+      end
     end
   end
 
